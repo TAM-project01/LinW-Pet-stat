@@ -3,60 +3,113 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# 페이지 설정
 st.set_page_config(page_title="스탯 시뮬레이터", layout="centered")
-st.title("📊 스탯 시뮬레이터")
-
-# 설명문 추가
+st.title("📊펫 스탯 시뮬레이터")
 st.markdown("""
-**설명:**  
-- D는 주 스탯입니다.  
-- A, B, C는 나머지 스탯입니다.  
-- 적극성은 입력하지 않습니다.  
-- 특기로 얻은 스탯은 제외하고 입력해주세요.
+레벨과 스탯 수치를 입력하면, 당신의 총합이 상위 몇 %인지 계산합니다.  
+주 스탯을 포함한 **인내력, 충성심, 속도, 체력** 기준이며,  
+**특기로 얻은 스탯은 제외하고 입력**해 주세요.
 """)
 
-st.markdown("단계와 스탯 수치를 입력하면, 당신의 총합이 상위 몇 %인지 계산합니다.")
+# 종별 D 스탯 고정
+d_stat_map = {
+    "도베르만": "충성심",
+    "비글": "속도",
+    "셰퍼드": "인내력",
+    "늑대": "체력"
+}
+stat_order = ["인내력", "충성심", "속도", "체력"]
 
-BASE_A = 6
-BASE_B = 6
-BASE_C = 6
-BASE_D = 16
+# 종 선택
+category = st.selectbox("🐶 견종 선택", list(d_stat_map.keys()))
+d_stat = d_stat_map[category]
+remaining_stats = [s for s in stat_order if s != d_stat]
+a_stat, b_stat, c_stat = remaining_stats
 
+# 체력 제외 모드 (이제 견종과 무관하게 "체력"만 제외)
+exclude_hp = st.checkbox("🛑 체력 스탯 제외하고 계산하기")
+
+# 입력
 col1, col2 = st.columns(2)
 stage = col1.number_input("단계 (2 이상)", min_value=2, value=2, step=1)
-a = col1.number_input("A 수치", min_value=0, value=BASE_A, step=1)
-b = col2.number_input("B 수치", min_value=0, value=BASE_B, step=1)
-c = col1.number_input("C 수치", min_value=0, value=BASE_C, step=1)
-d = col2.number_input("D 수치", min_value=0, value=BASE_D, step=1)
+a = col1.number_input(f"{a_stat} 수치", min_value=0, value=6, step=1)
+b = col2.number_input(f"{b_stat} 수치", min_value=0, value=6, step=1)
+c = col1.number_input(f"{c_stat} 수치", min_value=0, value=6, step=1)
+d = col2.number_input(f"{d_stat} 수치", min_value=0, value=16, step=1)
 
+# 체력 수치 입력 (별도 분리 보장)
+hp_input = {
+    "인내력": a,
+    "충성심": b,
+    "속도": c,
+    "체력": d
+}["체력"]
+
+# 결과 계산 버튼
 if st.button("결과 계산"):
     upgrades = stage - 1
-    num_sim = 100_000
+    num_sim = 100_000  # 고정
 
+    # 확률 테이블
     ac_vals = [0, 1, 2, 3]
     ac_probs = [0.15, 0.5, 0.3, 0.05]
     d_vals = [1, 2, 3, 4, 5, 6, 7]
     d_probs = [0.05, 0.15, 0.3, 0.2, 0.15, 0.1, 0.05]
 
-    a_sim = BASE_A + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
-    b_sim = BASE_B + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
-    c_sim = BASE_C + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
-    d_sim = BASE_D + np.random.choice(d_vals, (num_sim, upgrades), p=d_probs).sum(axis=1)
+    # 시뮬레이션
+    a_sim = 6 + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
+    b_sim = 6 + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
+    c_sim = 6 + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
+    d_sim = 16 + np.random.choice(d_vals, (num_sim, upgrades), p=d_probs).sum(axis=1)
 
-    total_sim = a_sim + b_sim + c_sim + d_sim
-    user_total = a + b + c + d
+    # 어떤 스탯이 체력인지 파악
+    hp_sim = {
+        a_stat: a_sim,
+        b_stat: b_sim,
+        c_stat: c_sim,
+        d_stat: d_sim
+    }["체력"]
 
-    percentile_above = np.sum(total_sim > user_total) / num_sim * 100
+    # 총합 계산
+    user_total = 0
+    total_sim = np.zeros(num_sim)
 
-    st.success(f"📌 입력한 총합: {user_total}")
-    st.info(f"💡 상위 약 {percentile_above:.5f}% 에 해당합니다.")
+    for stat_name, user_val, sim_val in zip(
+        [a_stat, b_stat, c_stat, d_stat],
+        [a, b, c, d],
+        [a_sim, b_sim, c_sim, d_sim]
+    ):
+        if exclude_hp and stat_name == "체력":
+            continue
+        user_total += user_val
+        total_sim += sim_val
 
-    st.subheader("시뮬레이션 결과 분포")
+    # 퍼센타일 계산
+    total_percentile = np.sum(total_sim > user_total) / num_sim * 100
 
+    a_percentile = np.sum(a_sim > a) / num_sim * 100
+    b_percentile = np.sum(b_sim > b) / num_sim * 100
+    c_percentile = np.sum(c_sim > c) / num_sim * 100
+    d_percentile = np.sum(d_sim > d) / num_sim * 100
+
+    # 출력
+    st.success(f"📌 총합: {user_total}")
+    st.info(f"💡 {'체력 제외 시 ' if exclude_hp else ''}상위 약 {total_percentile:.2f}% 에 해당합니다.")
+
+    st.subheader("📈 개별 스탯 상위 %")
+    col_a, col_b, col_c, col_d = st.columns(4)
+    col_a.metric(a_stat, f"{a}", f"상위 {a_percentile:.2f}%")
+    col_b.metric(b_stat, f"{b}", f"상위 {b_percentile:.2f}%")
+    col_c.metric(c_stat, f"{c}", f"상위 {c_percentile:.2f}%")
+    col_d.metric(d_stat, f"{d}", f"상위 {d_percentile:.2f}%")
+
+    # 그래프
+    st.subheader("🎯 총합 분포와 나의 위치")
     fig, ax = plt.subplots(figsize=(10, 4))
     sns.histplot(total_sim, bins=50, kde=True, ax=ax, color='skyblue')
     ax.axvline(user_total, color='red', linestyle='--', label='내 총합')
-    ax.set_title("총합 분포와 나의 위치")
+    ax.set_title(f"{'체력 제외 ' if exclude_hp else ''}총합 분포")
     ax.set_xlabel("스탯 총합")
     ax.legend()
     st.pyplot(fig)
