@@ -2,22 +2,6 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib
-import matplotlib.font_manager as fm
-import os
-
-# ✅ 한글 폰트 설정
-def set_korean_font():
-    font_path = os.path.join(os.path.dirname(__file__), "NanumGothic.ttf")
-    if os.path.exists(font_path):
-        font_name = fm.FontProperties(fname=font_path).get_name()
-        matplotlib.rc('font', family=font_name)
-        matplotlib.rcParams['axes.unicode_minus'] = False
-        print(f"✅ 한글 폰트 적용됨: {font_name}")
-    else:
-        print("❌ NanumGothic.ttf 파일을 찾을 수 없습니다.")
-
-set_korean_font()
 
 # 페이지 설정
 st.set_page_config(page_title="스탯 시뮬레이터", layout="centered")
@@ -43,7 +27,7 @@ d_stat = d_stat_map[category]
 remaining_stats = [s for s in stat_order if s != d_stat]
 a_stat, b_stat, c_stat = remaining_stats
 
-# 체력 제외 모드
+# 체력 제외 모드 (이제 견종과 무관하게 "체력"만 제외)
 exclude_hp = st.checkbox("🛑 체력 스탯 제외하고 계산하기")
 
 # 입력
@@ -54,7 +38,7 @@ b = col2.number_input(f"{b_stat} 수치", min_value=0, value=6, step=1)
 c = col1.number_input(f"{c_stat} 수치", min_value=0, value=6, step=1)
 d = col2.number_input(f"{d_stat} 수치", min_value=0, value=16, step=1)
 
-# 체력 수치 입력 분리
+# 체력 수치 입력 (별도 분리 보장)
 hp_input = {
     "인내력": a,
     "충성심": b,
@@ -62,10 +46,10 @@ hp_input = {
     "체력": d
 }["체력"]
 
-# 결과 계산
+# 결과 계산 버튼
 if st.button("결과 계산"):
     upgrades = level - 1
-    num_sim = 100_000
+    num_sim = 100_000  # 고정
 
     # 확률 테이블
     ac_vals = [0, 1, 2, 3]
@@ -79,7 +63,7 @@ if st.button("결과 계산"):
     c_sim = 6 + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
     d_sim = 16 + np.random.choice(d_vals, (num_sim, upgrades), p=d_probs).sum(axis=1)
 
-    # 체력 시뮬레이션
+    # 어떤 스탯이 체력인지 파악
     hp_sim = {
         a_stat: a_sim,
         b_stat: b_sim,
@@ -109,7 +93,7 @@ if st.button("결과 계산"):
     c_percentile = np.sum(c_sim > c) / num_sim * 100
     d_percentile = np.sum(d_sim > d) / num_sim * 100
 
-    # 결과 출력
+    # 출력
     st.success(f"📌 총합: {user_total}")
     st.info(f"💡 {'체력 제외 시 ' if exclude_hp else ''}상위 약 {total_percentile:.2f}% 에 해당합니다.")
 
@@ -120,7 +104,7 @@ if st.button("결과 계산"):
     col_c.metric(c_stat, f"{c}", f"상위 {c_percentile:.2f}%")
     col_d.metric(d_stat, f"{d}", f"상위 {d_percentile:.2f}%")
 
-    # 그래프 출력
+    # 그래프
     st.subheader("🎯 총합 분포와 나의 위치")
     fig, ax = plt.subplots(figsize=(10, 4))
     sns.histplot(total_sim, bins=50, kde=True, ax=ax, color='skyblue')
