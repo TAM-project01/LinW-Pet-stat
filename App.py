@@ -32,7 +32,7 @@ exclude_hp = st.checkbox("🛑 체력 스탯 제외하고 계산하기")
 
 # 입력
 col1, col2 = st.columns(2)
-stage = col1.number_input("단계 (2 이상)", min_value=2, value=2, step=1)
+level = col1.number_input("레벨 (2 이상)", min_value=2, value=2, step=1)
 a = col1.number_input(f"{a_stat} 수치", min_value=0, value=6, step=1)
 b = col2.number_input(f"{b_stat} 수치", min_value=0, value=6, step=1)
 c = col1.number_input(f"{c_stat} 수치", min_value=0, value=6, step=1)
@@ -48,7 +48,7 @@ hp_input = {
 
 # 결과 계산 버튼
 if st.button("결과 계산"):
-    upgrades = stage - 1
+    upgrades = level - 1
     num_sim = 100_000  # 고정
 
     # 확률 테이블
