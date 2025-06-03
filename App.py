@@ -105,11 +105,11 @@ if st.button("결과 계산"):
     col_d.metric(d_stat, f"{d}", f"상위 {d_percentile:.2f}%")
 
     # 그래프
-    st.subheader("🎯 총합 분포와 나의 위치")
+    st.subheader("🎯 Total Stat Distribution and Your Position")
     fig, ax = plt.subplots(figsize=(10, 4))
     sns.histplot(total_sim, bins=50, kde=True, ax=ax, color='skyblue')
-    ax.axvline(user_total, color='red', linestyle='--', label='내 총합')
-    ax.set_title(f"{'체력 제외 ' if exclude_hp else ''}총합 분포")
-    ax.set_xlabel("스탯 총합")
+    ax.axvline(user_total, color='red', linestyle='--', label='Your Total')
+    ax.set_title(f"{'Excl. HP ' if exclude_hp else ''}Stat Total Distribution")
+    ax.set_xlabel("Total Stat")
     ax.legend()
     st.pyplot(fig)
