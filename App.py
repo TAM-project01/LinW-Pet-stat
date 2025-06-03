@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+plt.rcParams['font.family'] = 'DejaVu Sans'
+
 # 페이지 설정
 st.set_page_config(page_title="스탯 시뮬레이터", layout="centered")
 st.title("📊펫 스탯 시뮬레이터")
