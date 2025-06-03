@@ -4,23 +4,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib
 import matplotlib.font_manager as fm
-import platform
-import os
+import os 
 
 def set_korean_font():
-    system = platform.system()
-    if system == 'Windows':
-        font_path = "C:/Windows/Fonts/malgun.ttf"
-    elif system == 'Darwin':  # macOS
-        font_path = "/System/Library/Fonts/AppleGothic.ttf"
-    else:  # Linux (예: Streamlit Cloud, Ubuntu 등)
-        font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
-
-    if os.path.exists(font_path):
-        font_name = fm.FontProperties(fname=font_path).get_name()
-        matplotlib.rc('font', family=font_name)
-    else:
-        print(f"⚠️ 한글 폰트 파일을 찾을 수 없습니다: {font_path}")
+    font_path = os.path.join(os.path.dirname(__file__), "NanumGothic.ttf")
+    if os.path.exists(font_path):
+        font_name = fm.FontProperties(fname=font_path).get_name()
+        matplotlib.rc('font', family=font_name)
+        matplotlib.rcParams['axes.unicode_minus'] = False
+        print(f"✅ 한글 폰트 적용됨: {font_name}")
+    else:
+        print("❌ NanumGothic.ttf 파일을 찾을 수 없습니다.") 
 
 set_korean_font()
 
