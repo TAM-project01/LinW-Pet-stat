@@ -29,7 +29,7 @@ d_stat = d_stat_map[category]
 remaining_stats = [s for s in stat_order if s != d_stat]
 a_stat, b_stat, c_stat = remaining_stats
 
-# 체력 제외 모드 (이제 견종과 무관하게 "체력"만 제외)
+# 체력 제외 모드
 exclude_hp = st.checkbox("🛑 체력 스탯 제외하고 계산하기")
 
 # 입력
@@ -95,16 +95,22 @@ if st.button("결과 계산"):
     c_percentile = np.sum(c_sim > c) / num_sim * 100
     d_percentile = np.sum(d_sim > d) / num_sim * 100
 
+    # 레벨당 상승량 계산
+    inc_a = (a - 6) / upgrades if upgrades > 0 else 0
+    inc_b = (b - 6) / upgrades if upgrades > 0 else 0
+    inc_c = (c - 6) / upgrades if upgrades > 0 else 0
+    inc_d = (d - 16) / upgrades if upgrades > 0 else 0
+
     # 출력
     st.success(f"📌 총합: {user_total}")
     st.info(f"💡 {'체력 제외 시 ' if exclude_hp else ''}상위 약 {total_percentile:.2f}% 에 해당합니다.")
 
-    st.subheader("📈 개별 스탯 상위 %")
+    st.subheader("📈 개별 스탯 상위 % (+Lv당 증가량)")
     col_a, col_b, col_c, col_d = st.columns(4)
-    col_a.metric(a_stat, f"{a}", f"상위 {a_percentile:.2f}%")
-    col_b.metric(b_stat, f"{b}", f"상위 {b_percentile:.2f}%")
-    col_c.metric(c_stat, f"{c}", f"상위 {c_percentile:.2f}%")
-    col_d.metric(d_stat, f"{d}", f"상위 {d_percentile:.2f}%")
+    col_a.metric(a_stat, f"{a}", f"상위 {a_percentile:.2f}% (+{inc_a:.2f}/Lv)")
+    col_b.metric(b_stat, f"{b}", f"상위 {b_percentile:.2f}% (+{inc_b:.2f}/Lv)")
+    col_c.metric(c_stat, f"{c}", f"상위 {c_percentile:.2f}% (+{inc_c:.2f}/Lv)")
+    col_d.metric(d_stat, f"{d}", f"상위 {d_percentile:.2f}% (+{inc_d:.2f}/Lv)")
 
     # 그래프
     st.subheader("🎯 Total Stat Distribution and Your Position")
