@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 plt.rcParams['font.family'] = 'DejaVu Sans'
 
@@ -40,18 +41,10 @@ b = col2.number_input(f"{b_stat} 수치", min_value=0, value=6, step=1)
 c = col1.number_input(f"{c_stat} 수치", min_value=0, value=6, step=1)
 d = col2.number_input(f"{d_stat} 수치", min_value=0, value=16, step=1)
 
-# 체력 수치 입력 (별도 분리 보장)
-hp_input = {
-    "인내력": a,
-    "충성심": b,
-    "속도": c,
-    "체력": d
-}["체력"]
-
 # 결과 계산 버튼
 if st.button("결과 계산"):
     upgrades = level - 1
-    num_sim = 100_000  # 고정
+    num_sim = 100_000
 
     # 확률 테이블
     ac_vals = [0, 1, 2, 3]
@@ -95,22 +88,25 @@ if st.button("결과 계산"):
     c_percentile = np.sum(c_sim > c) / num_sim * 100
     d_percentile = np.sum(d_sim > d) / num_sim * 100
 
-    # 레벨당 상승량 계산
-    inc_a = (a - 6) / upgrades if upgrades > 0 else 0
-    inc_b = (b - 6) / upgrades if upgrades > 0 else 0
-    inc_c = (c - 6) / upgrades if upgrades > 0 else 0
-    inc_d = (d - 16) / upgrades if upgrades > 0 else 0
+    # 평균 증가량 계산
+    inc_a = (a - 6) / upgrades
+    inc_b = (b - 6) / upgrades
+    inc_c = (c - 6) / upgrades
+    inc_d = (d - 16) / upgrades
 
     # 출력
     st.success(f"📌 총합: {user_total}")
     st.info(f"💡 {'체력 제외 시 ' if exclude_hp else ''}상위 약 {total_percentile:.2f}% 에 해당합니다.")
 
-    st.subheader("📈 개별 스탯 상위 % (+Lv당 증가량)")
-    col_a, col_b, col_c, col_d = st.columns(4)
-    col_a.metric(a_stat, f"{a}", f"상위 {a_percentile:.2f}% (+{inc_a:.2f}/Lv)")
-    col_b.metric(b_stat, f"{b}", f"상위 {b_percentile:.2f}% (+{inc_b:.2f}/Lv)")
-    col_c.metric(c_stat, f"{c}", f"상위 {c_percentile:.2f}% (+{inc_c:.2f}/Lv)")
-    col_d.metric(d_stat, f"{d}", f"상위 {d_percentile:.2f}% (+{inc_d:.2f}/Lv)")
+    st.subheader("📊 개별 스탯 요약 테이블")
+    data = {
+        "스탯": [a_stat, b_stat, c_stat, d_stat],
+        "현재 수치": [a, b, c, d],
+        "상위 %": [f"{a_percentile:.2f}%", f"{b_percentile:.2f}%", f"{c_percentile:.2f}%", f"{d_percentile:.2f}%"],
+        "Lv당 평균 증가량": [f"+{inc_a:.2f}", f"+{inc_b:.2f}", f"+{inc_c:.2f}", f"+{inc_d:.2f}"]
+    }
+    df = pd.DataFrame(data)
+    st.table(df)
 
     # 그래프
     st.subheader("🎯 Total Stat Distribution and Your Position")
