@@ -94,23 +94,23 @@ if st.button("결과 계산"):
     inc_c = (c - 6) / upgrades
     inc_d = (d - 16) / upgrades
 
-   # 출력
-st.success(f"📌 총합: {user_total}")
-st.info(f"💡 {'체력 제외 시 ' if exclude_hp else ''}상위 약 {total_percentile:.2f}% 에 해당합니다.")
+    # 출력
+    st.success(f"📌 총합: {user_total}")
+    st.info(f"💡 {'체력 제외 시 ' if exclude_hp else ''}상위 약 {total_percentile:.2f}% 에 해당합니다.")
 
-# ✅ 견종과 레벨 정보 표시
-st.markdown(f"### 🐾 선택한 견종: **{category}** / 레벨: **{level}**")
+    # 🐾 견종 및 레벨 정보
+    st.markdown(f"### 🐾 선택한 견종: **{category}** / 레벨: **{level}**")
 
-st.subheader("📊 개별 스탯 요약 테이블")
-data = {
-    "스탯": [a_stat, b_stat, c_stat, d_stat],
-    "현재 수치": [a, b, c, d],
-    "상위 %": [f"{a_percentile:.2f}%", f"{b_percentile:.2f}%", f"{c_percentile:.2f}%", f"{d_percentile:.2f}%"],
-    "Lv당 평균 증가량": [f"+{inc_a:.2f}", f"+{inc_b:.2f}", f"+{inc_c:.2f}", f"+{inc_d:.2f}"]
-}
-df = pd.DataFrame(data)
-st.table(df)
-
+    # 표 출력
+    st.subheader("📊 개별 스탯 요약 테이블")
+    data = {
+        "스탯": [a_stat, b_stat, c_stat, d_stat],
+        "현재 수치": [a, b, c, d],
+        "상위 %": [f"{a_percentile:.2f}%", f"{b_percentile:.2f}%", f"{c_percentile:.2f}%", f"{d_percentile:.2f}%"],
+        "Lv당 평균 증가량": [f"+{inc_a:.2f}", f"+{inc_b:.2f}", f"+{inc_c:.2f}", f"+{inc_d:.2f}"]
+    }
+    df = pd.DataFrame(data)
+    st.table(df)
 
     # 그래프
     st.subheader("🎯 Total Stat Distribution and Your Position")
