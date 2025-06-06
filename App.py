@@ -39,7 +39,7 @@ level = col1.number_input("레벨 (2 이상)", min_value=2, value=2, step=1)
 a = col1.number_input(f"{a_stat} 수치", min_value=0, value=6, step=1)
 b = col2.number_input(f"{b_stat} 수치", min_value=0, value=6, step=1)
 c = col1.number_input(f"{c_stat} 수치", min_value=0, value=6, step=1)
-d = col2.number_input(f"{d_stat} 수치", min_value=0, value=16, step=1)
+d = col2.number_input(f"{d_stat} 수치", min_value=0, value=14, step=1)
 
 # 결과 계산 버튼
 if st.button("결과 계산"):
@@ -56,7 +56,7 @@ if st.button("결과 계산"):
     a_sim = 6 + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
     b_sim = 6 + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
     c_sim = 6 + np.random.choice(ac_vals, (num_sim, upgrades), p=ac_probs).sum(axis=1)
-    d_sim = 16 + np.random.choice(d_vals, (num_sim, upgrades), p=d_probs).sum(axis=1)
+    d_sim = 14 + np.random.choice(d_vals, (num_sim, upgrades), p=d_probs).sum(axis=1)
 
     # 어떤 스탯이 체력인지 파악
     hp_sim = {
@@ -92,7 +92,7 @@ if st.button("결과 계산"):
     inc_a = (a - 6) / upgrades
     inc_b = (b - 6) / upgrades
     inc_c = (c - 6) / upgrades
-    inc_d = (d - 16) / upgrades
+    inc_d = (d - 14) / upgrades
 
     # 출력
     st.success(f"📌 총합: {user_total}")
