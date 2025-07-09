@@ -113,7 +113,7 @@ if st.session_state["calculated"]:
         target_a = col1.number_input(f"{a_stat} 목표값", min_value=0, value=35, step=1)
         target_b = col2.number_input(f"{b_stat} 목표값", min_value=0, value=35, step=1)
         target_c = col3.number_input(f"{c_stat} 목표값", min_value=0, value=35, step=1)
-        target_d = col4.number_input(f"{d_stat} 목표값 (주 스탯)", min_value=0, value=120, step=1)
+        target_d = col4.number_input(f"{d_stat} 목표값 (주 스탯)", min_value=0, value=100, step=1)
 
         remaining = 20 - level
         if remaining > 0:
