@@ -121,3 +121,44 @@ if st.button("결과 계산"):
     ax.set_xlabel("Total Stat")
     ax.legend()
     st.pyplot(fig)
+
+# 🎯 목표 스탯 계산 여부 체크박스
+if st.checkbox("🎯 20레벨 목표 스탯 도달 확률 계산하기"):
+    st.subheader("🎯 목표 스탯 설정")
+
+    col1, col2, col3, col4 = st.columns(4)
+    target_a = col1.number_input(f"{a_stat} 목표값", min_value=0, value=35, step=1)
+    target_b = col2.number_input(f"{b_stat} 목표값", min_value=0, value=35, step=1)
+    target_c = col3.number_input(f"{c_stat} 목표값", min_value=0, value=35, step=1)
+    target_d = col4.number_input(f"{d_stat} 목표값 (주 스탯)", min_value=0, value=120, step=1)
+
+    remaining_upgrades = 20 - level
+
+    if remaining_upgrades > 0:
+        # 시뮬레이션 (20레벨까지)
+        a_20 = a + np.random.choice(ac_vals, (num_sim, remaining_upgrades), p=ac_probs).sum(axis=1)
+        b_20 = b + np.random.choice(ac_vals, (num_sim, remaining_upgrades), p=ac_probs).sum(axis=1)
+        c_20 = c + np.random.choice(ac_vals, (num_sim, remaining_upgrades), p=ac_probs).sum(axis=1)
+        d_20 = d + np.random.choice(d_vals, (num_sim, remaining_upgrades), p=d_probs).sum(axis=1)
+
+        # 도달 확률
+        p_a = np.mean(a_20 >= target_a) * 100
+        p_b = np.mean(b_20 >= target_b) * 100
+        p_c = np.mean(c_20 >= target_c) * 100
+        p_d = np.mean(d_20 >= target_d) * 100
+
+        p_all = np.mean(
+            (a_20 >= target_a) &
+            (b_20 >= target_b) &
+            (c_20 >= target_c) &
+            (d_20 >= target_d)
+        ) * 100
+
+        st.write(f"🟦 {a_stat} 목표 도달 확률: **{p_a:.2f}%**")
+        st.write(f"🟨 {b_stat} 목표 도달 확률: **{p_b:.2f}%**")
+        st.write(f"🟩 {c_stat} 목표 도달 확률: **{p_c:.2f}%**")
+        st.write(f"🟥 {d_stat} (주 스탯) 목표 도달 확률: **{p_d:.2f}%**")
+
+        st.success(f"🎯 모든 목표를 동시에 만족할 확률: **{p_all:.2f}%**")
+    else:
+        st.warning("이미 20레벨입니다. 목표 시뮬레이션은 생략됩니다.")
