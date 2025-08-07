@@ -431,6 +431,7 @@ if st.session_state["calculated"]:
     ax.set_xlabel("Total Stat")
     ax.legend()
     st.pyplot(fig)
+    plt.close(fig)
 
     st.markdown("---")
     st.subheader("목표 스탯 입력 (20레벨 달성 시점의 총 스탯)")
